@@ -36,12 +36,29 @@
     --danger:#e0604a;
     --hairline:#2a2e33;
   }
+  body[data-theme="light"]{
+    --bg:#f3f1ea;
+    --panel:#ffffff;
+    --panel-hi:#f0ede4;
+    --bezel:#e2ddce;
+    --ink:#20242a;
+    --ink-dim:#6b7076;
+    --ink-faint:#9a9fa5;
+    --gold:#a5822f;
+    --good:#3f9068;
+    --danger:#c14a34;
+    --hairline:#e2ddd0;
+  }
+  body[data-theme="light"]{
+    background: radial-gradient(ellipse at 50% -10%, #ffffff 0%, #f3f1ea 55%);
+  }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
     background:
       radial-gradient(ellipse at 50% -10%, #1a1d21 0%, var(--bg) 55%);
     color:var(--ink);
+    transition:background .2s, color .2s;
     font-family:'Inter',sans-serif;
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
@@ -168,6 +185,69 @@
   .gps-dot{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);}
   .gps-dot.live{background:var(--good); box-shadow:0 0 6px var(--good);}
   .gps-dot.error{background:var(--danger);}
+  .gps-dot.paused,.gps-dot.weak{background:var(--gold); box-shadow:0 0 6px var(--gold);}
+
+  /* header buttons */
+  .header-btns{display:flex; align-items:center; gap:8px;}
+  .theme-toggle{
+    font-family:'Space Mono',monospace;
+    font-size:14px;
+    background:var(--panel-hi);
+    border:1px solid var(--hairline);
+    color:var(--ink-dim);
+    width:32px; height:32px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  .theme-toggle:hover{border-color:var(--ink-faint); color:var(--ink);}
+  .theme-toggle:active{transform:scale(0.94);}
+
+  /* ride note input */
+  .entry-note-wrap{margin-top:6px;}
+  .entry-note-input{
+    width:100%;
+    background:none;
+    border:none;
+    border-bottom:1px dashed var(--hairline);
+    color:var(--ink-dim);
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    padding:3px 0;
+    outline:none;
+  }
+  .entry-note-input::placeholder{color:var(--ink-faint);}
+  .entry-note-input:focus{border-bottom-color:var(--gold); color:var(--ink);}
+
+  /* weekly summary card */
+  .weekly-card{
+    margin-top:16px;
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:16px;
+    padding:14px 16px 16px;
+  }
+  .weekly-card-title{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:13px;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-dim);
+    margin-bottom:10px;
+  }
+
+  /* export / import */
+  .data-actions{display:flex; gap:12px;}
+  .data-btn{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    color:var(--ink-faint);
+    background:none;border:none;cursor:pointer;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+  }
+  .data-btn:hover{color:var(--gold);}
+  .data-status{
+    font-size:11px; color:var(--ink-faint); text-align:center; margin-top:8px; min-height:14px;
+  }
 
   /* controls */
   .controls{
@@ -449,6 +529,7 @@
   }
   #rideMap{width:100%; height:100%;}
   .leaflet-tile-pane{ filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.92) saturate(0.9); }
+  body[data-theme="light"] .leaflet-tile-pane{ filter:none; }
   .leaflet-control-attribution{
     background:rgba(14,16,18,0.75) !important; color:var(--ink-faint) !important;
     font-size:9px !important;
@@ -516,7 +597,10 @@
       <div class="brand-eyebrow">GPS Instrument</div>
       <div class="brand-title">Velocity Log</div>
     </div>
-    <button class="unit-toggle" id="unitToggle">MPH</button>
+    <div class="header-btns">
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+      <button class="unit-toggle" id="unitToggle">MPH</button>
+    </div>
   </div>
 
   <div class="gauge-shell">
@@ -541,6 +625,16 @@
     <div class="hint" id="hintText">Uses your device's GPS. Location is only used while a session is running.</div>
   </div>
 
+  <div class="weekly-card">
+    <div class="weekly-card-title">This Week</div>
+    <div class="stat-row" style="margin-bottom:0;">
+      <div class="stat"><div class="stat-label">Rides</div><div class="stat-val" id="weekRides">0</div></div>
+      <div class="stat"><div class="stat-label">Distance</div><div class="stat-val" id="weekDist">0.0</div></div>
+      <div class="stat"><div class="stat-label">Time</div><div class="stat-val" id="weekTime">0:00</div></div>
+      <div class="stat"><div class="stat-label">Avg</div><div class="stat-val" id="weekAvg">0</div></div>
+    </div>
+  </div>
+
   <div class="logbook">
     <div class="logbook-header">
       <div class="section-tabs">
@@ -554,7 +648,13 @@
       <div class="logbook-actions" id="fuelActions" style="display:none;">
         <button class="clear-all" id="fuelClearAll">Clear all</button>
       </div>
+      <div class="data-actions">
+        <button class="data-btn" id="exportBtn">Export</button>
+        <button class="data-btn" id="importBtn">Import</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </div>
     </div>
+    <div class="data-status" id="dataStatus"></div>
 
     <div id="ridesSection">
       <div id="historyList"></div>
@@ -617,6 +717,116 @@
 </div>
 
 <script>
+// ---------- persistent storage (IndexedDB) ----------
+// Replaces the Claude-artifact-only `window.storage` API with a real, standalone
+// implementation so data actually persists once this app is installed as a PWA
+// or wrapped into an APK (TWA/WebView storage both support IndexedDB normally).
+// Falls back to localStorage if IndexedDB is unavailable (e.g. some in-app browsers).
+window.storage = (function () {
+  const DB_NAME = 'velocity-log-db';
+  const STORE = 'kv';
+  let dbPromise = null;
+  let useFallback = false;
+
+  function openDB() {
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise((resolve, reject) => {
+      if (!('indexedDB' in window)) { useFallback = true; return reject(new Error('no indexedDB')); }
+      try {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => { req.result.createObjectStore(STORE); };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => { useFallback = true; reject(req.error); };
+      } catch (e) { useFallback = true; reject(e); }
+    });
+    return dbPromise;
+  }
+
+  // --- localStorage fallback helpers ---
+  const LS_PREFIX = 'vlog:';
+  function lsGet(key) {
+    const raw = localStorage.getItem(LS_PREFIX + key);
+    return raw === null ? null : { key, value: JSON.parse(raw), shared: false };
+  }
+  function lsSet(key, value) {
+    localStorage.setItem(LS_PREFIX + key, JSON.stringify(value));
+    return { key, value, shared: false };
+  }
+  function lsDelete(key) {
+    localStorage.removeItem(LS_PREFIX + key);
+    return { key, deleted: true, shared: false };
+  }
+  function lsList(prefix) {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(LS_PREFIX)) {
+        const bare = k.slice(LS_PREFIX.length);
+        if (!prefix || bare.startsWith(prefix)) keys.push(bare);
+      }
+    }
+    return { keys, prefix, shared: false };
+  }
+
+  async function get(key) {
+    if (useFallback) return lsGet(key);
+    try {
+      const db = await openDB();
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readonly');
+        const req = tx.objectStore(STORE).get(key);
+        req.onsuccess = () => resolve(req.result !== undefined ? { key, value: req.result, shared: false } : null);
+        req.onerror = () => reject(req.error);
+      });
+    } catch (e) { return lsGet(key); }
+  }
+
+  async function set(key, value) {
+    if (useFallback) return lsSet(key, value);
+    try {
+      const db = await openDB();
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).put(value, key);
+        tx.oncomplete = () => resolve({ key, value, shared: false });
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) { return lsSet(key, value); }
+  }
+
+  async function del(key) {
+    if (useFallback) return lsDelete(key);
+    try {
+      const db = await openDB();
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).delete(key);
+        tx.oncomplete = () => resolve({ key, deleted: true, shared: false });
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) { return lsDelete(key); }
+  }
+
+  async function list(prefix) {
+    if (useFallback) return lsList(prefix);
+    try {
+      const db = await openDB();
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readonly');
+        const req = tx.objectStore(STORE).getAllKeys();
+        req.onsuccess = () => {
+          let keys = req.result;
+          if (prefix) keys = keys.filter((k) => String(k).startsWith(prefix));
+          resolve({ keys, prefix, shared: false });
+        };
+        req.onerror = () => reject(req.error);
+      });
+    } catch (e) { return lsList(prefix); }
+  }
+
+  return { get, set, delete: del, list };
+})();
+
 (function(){
   // ---------- state ----------
   let unit = 'mph'; // 'mph' | 'kmh'
@@ -637,6 +847,23 @@
 
   const MPS_TO_MPH = 2.2369362921;
   const MPS_TO_KMH = 3.6;
+
+  // auto-pause
+  const PAUSE_SPEED_THRESHOLD_MS = 0.9; // ~2mph / ~3.2km/h
+  const PAUSE_DELAY_MS = 8000;
+  let paused = false;
+  let belowThresholdSince = null;
+  let pauseStartTs = null;
+  let pausedAccumMs = 0;
+
+  // GPS accuracy filtering
+  const MAX_ACCURACY_M = 35;
+
+  // wake lock
+  let wakeLock = null;
+
+  // theme
+  let theme = 'dark';
 
   const els = {
     unitToggle: document.getElementById('unitToggle'),
@@ -681,6 +908,15 @@
     fuelError: document.getElementById('fuelError'),
     fuelList: document.getElementById('fuelList'),
     fuelClearAll: document.getElementById('fuelClearAll'),
+    themeToggle: document.getElementById('themeToggle'),
+    weekRides: document.getElementById('weekRides'),
+    weekDist: document.getElementById('weekDist'),
+    weekTime: document.getElementById('weekTime'),
+    weekAvg: document.getElementById('weekAvg'),
+    exportBtn: document.getElementById('exportBtn'),
+    importBtn: document.getElementById('importBtn'),
+    importFile: document.getElementById('importFile'),
+    dataStatus: document.getElementById('dataStatus'),
   };
 
   // ---------- gauge drawing ----------
@@ -770,6 +1006,26 @@
     refreshUnitUI();
   });
 
+  // ---------- theme ----------
+  function applyTheme(){
+    document.body.setAttribute('data-theme', theme === 'light' ? 'light' : '');
+    els.themeToggle.textContent = theme === 'light' ? '☀' : '🌙';
+  }
+
+  async function loadTheme(){
+    try{
+      const r = await window.storage.get('theme');
+      if(r && (r.value === 'light' || r.value === 'dark')) theme = r.value;
+    }catch(e){ /* default dark */ }
+    applyTheme();
+  }
+
+  els.themeToggle.addEventListener('click', async ()=>{
+    theme = theme === 'light' ? 'dark' : 'light';
+    applyTheme();
+    try{ await window.storage.set('theme', theme); }catch(e){}
+  });
+
   // ---------- readout ----------
   function updateReadout(ms){
     const v = msToUnit(ms);
@@ -779,7 +1035,11 @@
 
   function updateLiveStats(){
     els.statDist.textContent = metersToDistUnit(distanceM).toFixed(1);
-    const elapsed = sessionStart ? (Date.now() - sessionStart)/1000 : 0;
+    let elapsed = 0;
+    if(sessionStart){
+      const curPausedMs = pausedAccumMs + (paused && pauseStartTs ? (Date.now() - pauseStartTs) : 0);
+      elapsed = Math.max(0, (Date.now() - sessionStart - curPausedMs) / 1000);
+    }
     els.statTime.textContent = formatDuration(elapsed);
     const avgMs = speedSamples.length ? speedSamples.reduce((a,b)=>a+b,0)/speedSamples.length : 0;
     els.statAvg.textContent = Math.round(msToUnit(avgMs));
@@ -791,6 +1051,34 @@
     const m = Math.floor(sec/60);
     const s = sec % 60;
     return `${m}:${s.toString().padStart(2,'0')}`;
+  }
+
+  // ---------- auto-pause ----------
+  // Returns true if the sample should be treated as "paused" (excluded from
+  // distance/avg/time accumulation) — sustained near-zero speed, e.g. red lights.
+  function checkAutoPause(speedMs, nowTs){
+    if(speedMs < PAUSE_SPEED_THRESHOLD_MS){
+      if(belowThresholdSince === null) belowThresholdSince = nowTs;
+      if(!paused && (nowTs - belowThresholdSince) >= PAUSE_DELAY_MS){
+        paused = true;
+        pauseStartTs = nowTs;
+      }
+    }else{
+      belowThresholdSince = null;
+      if(paused){
+        paused = false;
+        pausedAccumMs += nowTs - pauseStartTs;
+        pauseStartTs = null;
+      }
+    }
+    return paused;
+  }
+
+  function resetAutoPause(){
+    paused = false;
+    belowThresholdSince = null;
+    pauseStartTs = null;
+    pausedAccumMs = 0;
   }
 
   // ---------- haversine ----------
@@ -830,7 +1118,15 @@
 
   function handlePosition(pos){
     const acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
-    setGpsStatus('live', acc !== null ? `GPS Live · ±${acc}m` : 'GPS Live');
+
+    // GPS accuracy filtering: skip low-quality fixes entirely rather than let
+    // them corrupt distance/speed — keep lastPos as-is so the next good fix
+    // still measures distance from the last trustworthy point.
+    if(acc !== null && acc > MAX_ACCURACY_M){
+      setGpsStatus('weak', `GPS weak · ±${acc}m`);
+      return;
+    }
+
     const { latitude, longitude, speed } = pos.coords;
     const now = pos.timestamp || Date.now();
 
@@ -842,7 +1138,7 @@
       if(instSpeed === null && dt > 0){
         instSpeed = d / dt;
       }
-      if(dt > 0 && d < 1000){ // ignore GPS jumps
+      if(dt > 0 && d < 1000 && !paused){ // ignore GPS jumps, and don't accrue while auto-paused
         distanceM += d;
       }
     }
@@ -850,12 +1146,20 @@
 
     if(instSpeed !== null){
       currentSpeedMs = instSpeed;
-      maxSpeedMs = Math.max(maxSpeedMs, instSpeed);
-      speedSamples.push(instSpeed);
       updateReadout(instSpeed);
+      const isPaused = checkAutoPause(instSpeed, now);
+      if(!isPaused){
+        maxSpeedMs = Math.max(maxSpeedMs, instSpeed);
+        speedSamples.push(instSpeed);
+      }
     }
+
+    setGpsStatus(paused ? 'paused' : 'live', paused
+      ? 'Auto-paused · resume by moving'
+      : (acc !== null ? `GPS Live · ±${acc}m` : 'GPS Live'));
+
     const tSec = sessionStart ? (now - sessionStart)/1000 : 0;
-    maybeSamplePath(latitude, longitude, tSec, currentSpeedMs);
+    if(!paused) maybeSamplePath(latitude, longitude, tSec, currentSpeedMs);
     updateLiveStats();
   }
 
@@ -871,6 +1175,32 @@
     els.gpsStatusText.textContent = text;
   }
 
+  // ---------- wake lock ----------
+  async function requestWakeLock(){
+    if(!('wakeLock' in navigator)) return;
+    try{
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', ()=>{ wakeLock = null; });
+    }catch(e){
+      // permission denied or unsupported state — fail silently, tracking still works
+      wakeLock = null;
+    }
+  }
+
+  function releaseWakeLock(){
+    if(wakeLock){
+      wakeLock.release().catch(()=>{});
+      wakeLock = null;
+    }
+  }
+
+  document.addEventListener('visibilitychange', ()=>{
+    // wake locks are auto-released when the tab is hidden; re-acquire on return
+    if(document.visibilityState === 'visible' && tracking && !wakeLock){
+      requestWakeLock();
+    }
+  });
+
   // ---------- demo mode fallback ----------
   function startDemo(){
     demoMode = true;
@@ -878,32 +1208,40 @@
     sessionStart = Date.now();
     distanceM = 0; maxSpeedMs = 0; speedSamples = []; currentSpeedMs = 0; lastPos = null;
     sessionPath = []; lastPathSample = null;
+    resetAutoPause();
     // fake starting point (Golden Gate Park area) so the map has something real to render
     demoLat = 37.7694; demoLon = -122.4862; demoHeading = Math.random() * Math.PI * 2;
     setGpsStatus('live', 'Demo mode');
     els.hintText.textContent = 'Simulating a drive — no real GPS is used.';
     els.sessionBtn.textContent = 'Stop Tracking';
     els.sessionBtn.classList.remove('start'); els.sessionBtn.classList.add('stop');
+    requestWakeLock();
 
     let t = 0;
     demoTimer = setInterval(()=>{
       t += 1;
       const simMs = Math.max(0, (Math.sin(t/12) * 0.5 + 0.5) * 26 + Math.random()*2);
       currentSpeedMs = simMs;
-      maxSpeedMs = Math.max(maxSpeedMs, simMs);
-      speedSamples.push(simMs);
-      distanceM += simMs;
-
-      // gentle random-walk heading so the route curves like real streets
-      demoHeading += (Math.random() - 0.5) * 0.35;
-      const metersMoved = simMs;
-      const dLat = (metersMoved * Math.cos(demoHeading)) / 111320;
-      const dLon = (metersMoved * Math.sin(demoHeading)) / (111320 * Math.cos(demoLat * Math.PI/180));
-      demoLat += dLat;
-      demoLon += dLon;
-
       updateReadout(simMs);
-      maybeSamplePath(demoLat, demoLon, t, simMs);
+      const now = Date.now();
+      const isPaused = checkAutoPause(simMs, now);
+      setGpsStatus(isPaused ? 'paused' : 'live', isPaused ? 'Auto-paused · resume by moving' : 'Demo mode');
+
+      if(!isPaused){
+        maxSpeedMs = Math.max(maxSpeedMs, simMs);
+        speedSamples.push(simMs);
+        distanceM += simMs;
+
+        // gentle random-walk heading so the route curves like real streets
+        demoHeading += (Math.random() - 0.5) * 0.35;
+        const metersMoved = simMs;
+        const dLat = (metersMoved * Math.cos(demoHeading)) / 111320;
+        const dLon = (metersMoved * Math.sin(demoHeading)) / (111320 * Math.cos(demoLat * Math.PI/180));
+        demoLat += dLat;
+        demoLon += dLon;
+
+        maybeSamplePath(demoLat, demoLon, t, simMs);
+      }
       updateLiveStats();
     }, 1000);
   }
@@ -924,10 +1262,12 @@
     sessionStart = Date.now();
     distanceM = 0; maxSpeedMs = 0; speedSamples = []; currentSpeedMs = 0; lastPos = null;
     sessionPath = []; lastPathSample = null;
+    resetAutoPause();
     setGpsStatus('', 'Locating…');
     els.hintText.textContent = 'Keep this screen open while you drive or ride.';
     els.sessionBtn.textContent = 'Stop Tracking';
     els.sessionBtn.classList.remove('start'); els.sessionBtn.classList.add('stop');
+    requestWakeLock();
 
     watchId = navigator.geolocation.watchPosition(handlePosition, handleGeoError, {
       enableHighAccuracy: true,
@@ -977,6 +1317,8 @@
     sessionStart = null;
     lastPos = null;
     sessionPath = []; lastPathSample = null;
+    resetAutoPause();
+    releaseWakeLock();
     updateReadout(0);
   }
 
@@ -991,20 +1333,18 @@
   // ---------- storage ----------
   async function loadHistory(){
     try{
-      const raw = localStorage.getItem('velocity-log-sessions');
-      return raw ? JSON.parse(raw) : [];
+      const r = await window.storage.get('sessions', false);
+      return r ? JSON.parse(r.value) : [];
     }catch(e){
-      console.error('load history failed', e);
       return [];
     }
   }
 
   async function saveHistoryArr(arr){
     try{
-      localStorage.setItem('velocity-log-sessions', JSON.stringify(arr));
+      await window.storage.set('sessions', JSON.stringify(arr), false);
     }catch(e){
       console.error('save failed', e);
-      alert('Could not save — your browser storage may be full or disabled (private/incognito mode blocks this).');
     }
   }
 
@@ -1023,6 +1363,14 @@
     renderHistory();
   }
 
+  async function updateSessionNote(id, note){
+    const arr = await loadHistory();
+    const entry = arr.find(e => e.id === id);
+    if(!entry) return;
+    entry.note = note;
+    await saveHistoryArr(arr); // no renderHistory() call — avoids yanking focus mid-edit
+  }
+
   els.clearAll.addEventListener('click', async ()=>{
     if(!confirm('Clear all saved sessions? This cannot be undone.')) return;
     await saveHistoryArr([]);
@@ -1035,11 +1383,28 @@
     return `${months[d.getMonth()]} ${d.getDate()}`;
   }
 
+  async function renderWeeklyStats(){
+    const arr = await loadHistory();
+    const weekAgo = Date.now() - 7*24*60*60*1000;
+    const weekRides = arr.filter(e => e.date >= weekAgo);
+    const totalDistM = weekRides.reduce((sum,e) => sum + (e.distanceM || 0), 0);
+    const totalDurSec = weekRides.reduce((sum,e) => sum + (e.durationSec || 0), 0);
+    // duration-weighted average speed so longer rides count more
+    const weightedSpeedSum = weekRides.reduce((sum,e) => sum + (e.avgMs || 0) * (e.durationSec || 0), 0);
+    const avgMs = totalDurSec > 0 ? weightedSpeedSum / totalDurSec : 0;
+
+    els.weekRides.textContent = weekRides.length;
+    els.weekDist.textContent = metersToDistUnit(totalDistM).toFixed(1);
+    els.weekTime.textContent = formatDuration(totalDurSec);
+    els.weekAvg.textContent = Math.round(msToUnit(avgMs));
+  }
+
   async function renderHistory(){
     const arr = await loadHistory();
     if(!arr.length){
       els.historyList.innerHTML = `<div class="empty-state"><span class="glyph">◎</span>No sessions yet — start tracking to log your first drive.</div>`;
       els.compareBar.style.display = 'none';
+      renderWeeklyStats();
       return;
     }
     els.historyList.innerHTML = arr.map(e => {
@@ -1056,6 +1421,7 @@
           <div class="entry-main">
             <div class="entry-max">${maxV} <span style="font-size:11px;color:var(--ink-dim);font-weight:400;">${u} max</span></div>
             <div class="entry-sub">${dist} ${dUnit} · ${formatDuration(e.durationSec)} · avg ${avgV} ${u}${(!e.path || e.path.length < 2) ? ' · no route saved' : ''}</div>
+            ${!compareMode ? `<div class="entry-note-wrap"><input class="entry-note-input" data-id="${e.id}" placeholder="Add a note…" value="${(e.note || '').replace(/"/g,'&quot;')}"></div>` : ''}
           </div>
           ${!compareMode ? `<button class="entry-del" data-id="${e.id}" title="Delete">✕</button>` : ''}
         </div>
@@ -1069,8 +1435,18 @@
           deleteSession(btn.getAttribute('data-id'));
         });
       });
+      els.historyList.querySelectorAll('.entry-note-input').forEach(input=>{
+        input.addEventListener('click', (ev)=> ev.stopPropagation());
+        input.addEventListener('change', (ev)=>{
+          ev.stopPropagation();
+          updateSessionNote(input.getAttribute('data-id'), input.value.trim());
+        });
+      });
       els.historyList.querySelectorAll('.entry').forEach(row=>{
-        row.addEventListener('click', ()=> openRideDetail(row.getAttribute('data-id')));
+        row.addEventListener('click', (ev)=>{
+          if(ev.target.classList.contains('entry-note-input')) return;
+          openRideDetail(row.getAttribute('data-id'));
+        });
       });
     }else{
       els.historyList.querySelectorAll('.entry').forEach(row=>{
@@ -1079,6 +1455,7 @@
     }
 
     updateCompareBar();
+    renderWeeklyStats();
   }
 
   // ---------- compare mode selection ----------
@@ -1207,7 +1584,7 @@
         showNoRoute(entry);
         return;
       }
-      els.modalTitle.textContent = formatDate(entry.date) + ' Ride';
+      els.modalTitle.textContent = entry.note ? entry.note : (formatDate(entry.date) + ' Ride');
       els.modalLegend.style.display = 'none';
       els.playbackPanel.style.display = 'block';
       els.modalBackdrop.classList.add('open');
@@ -1265,7 +1642,7 @@
   }
 
   function showNoRoute(entry){
-    els.modalTitle.textContent = formatDate(entry.date) + ' Ride';
+    els.modalTitle.textContent = entry.note ? entry.note : (formatDate(entry.date) + ' Ride');
     els.modalLegend.style.display = 'none';
     els.playbackPanel.style.display = 'none';
     els.modalBackdrop.classList.add('open');
@@ -1365,20 +1742,13 @@
   // ---------- fuel tracker ----------
   async function loadFuel(){
     try{
-      const raw = localStorage.getItem('velocity-log-fuel');
-      return raw ? JSON.parse(raw) : [];
-    }catch(e){
-      console.error('load fuel failed', e);
-      return [];
-    }
+      const r = await window.storage.get('fuel-entries', false);
+      return r ? JSON.parse(r.value) : [];
+    }catch(e){ return []; }
   }
   async function saveFuelArr(arr){
-    try{
-      localStorage.setItem('velocity-log-fuel', JSON.stringify(arr));
-    }catch(e){
-      console.error('fuel save failed', e);
-      alert('Could not save — your browser storage may be full or disabled (private/incognito mode blocks this).');
-    }
+    try{ await window.storage.set('fuel-entries', JSON.stringify(arr), false); }
+    catch(e){ console.error('fuel save failed', e); }
   }
 
   function showFuelError(msg){
@@ -1451,10 +1821,88 @@
     });
   }
 
+  // ---------- export / import ----------
+  function showDataStatus(msg, isError){
+    els.dataStatus.textContent = msg;
+    els.dataStatus.style.color = isError ? 'var(--danger)' : 'var(--good)';
+    if(msg){
+      setTimeout(()=>{ if(els.dataStatus.textContent === msg) els.dataStatus.textContent = ''; }, 5000);
+    }
+  }
+
+  els.exportBtn.addEventListener('click', async ()=>{
+    try{
+      const sessions = await loadHistory();
+      const fuel = await loadFuel();
+      const payload = {
+        app: 'velocity-log',
+        version: 1,
+        exportedAt: Date.now(),
+        sessions,
+        fuel
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const d = new Date();
+      const stamp = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+      a.href = url;
+      a.download = `velocity-log-export-${stamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showDataStatus(`Exported ${sessions.length} ride(s) and ${fuel.length} fuel entry(ies).`, false);
+    }catch(e){
+      console.error('export failed', e);
+      showDataStatus('Export failed — see console for details.', true);
+    }
+  });
+
+  els.importBtn.addEventListener('click', ()=> els.importFile.click());
+
+  els.importFile.addEventListener('change', async ()=>{
+    const file = els.importFile.files[0];
+    els.importFile.value = ''; // allow re-selecting the same file later
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if(!data || (!Array.isArray(data.sessions) && !Array.isArray(data.fuel))){
+        showDataStatus('That file doesn\'t look like a Velocity Log export.', true);
+        return;
+      }
+      const incomingSessions = Array.isArray(data.sessions) ? data.sessions : [];
+      const incomingFuel = Array.isArray(data.fuel) ? data.fuel : [];
+
+      const mergeById = (existing, incoming) => {
+        const byId = new Map(existing.map(e => [e.id, e]));
+        incoming.forEach(e => { if(e && e.id) byId.set(e.id, e); }); // imported wins on id collision
+        return Array.from(byId.values());
+      };
+
+      const existingSessions = await loadHistory();
+      const mergedSessions = mergeById(existingSessions, incomingSessions).sort((a,b)=> b.date - a.date);
+      await saveHistoryArr(mergedSessions);
+
+      const existingFuel = await loadFuel();
+      const mergedFuel = mergeById(existingFuel, incomingFuel).sort((a,b)=> a.odo - b.odo);
+      await saveFuelArr(mergedFuel);
+
+      renderHistory();
+      renderFuel();
+      showDataStatus(`Imported — now ${mergedSessions.length} ride(s), ${mergedFuel.length} fuel entry(ies).`, false);
+    }catch(e){
+      console.error('import failed', e);
+      showDataStatus('Import failed — file may be corrupted or invalid JSON.', true);
+    }
+  });
+
   // ---------- init ----------
   buildDial();
   refreshUnitUI();
   renderHistory();
+  loadTheme();
 
   // ---------- service worker ----------
   if ('serviceWorker' in navigator) {
