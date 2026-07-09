@@ -991,18 +991,20 @@
   // ---------- storage ----------
   async function loadHistory(){
     try{
-      const r = await window.storage.get('sessions', false);
-      return r ? JSON.parse(r.value) : [];
+      const raw = localStorage.getItem('velocity-log-sessions');
+      return raw ? JSON.parse(raw) : [];
     }catch(e){
+      console.error('load history failed', e);
       return [];
     }
   }
 
   async function saveHistoryArr(arr){
     try{
-      await window.storage.set('sessions', JSON.stringify(arr), false);
+      localStorage.setItem('velocity-log-sessions', JSON.stringify(arr));
     }catch(e){
       console.error('save failed', e);
+      alert('Could not save — your browser storage may be full or disabled (private/incognito mode blocks this).');
     }
   }
 
@@ -1363,13 +1365,20 @@
   // ---------- fuel tracker ----------
   async function loadFuel(){
     try{
-      const r = await window.storage.get('fuel-entries', false);
-      return r ? JSON.parse(r.value) : [];
-    }catch(e){ return []; }
+      const raw = localStorage.getItem('velocity-log-fuel');
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){
+      console.error('load fuel failed', e);
+      return [];
+    }
   }
   async function saveFuelArr(arr){
-    try{ await window.storage.set('fuel-entries', JSON.stringify(arr), false); }
-    catch(e){ console.error('fuel save failed', e); }
+    try{
+      localStorage.setItem('velocity-log-fuel', JSON.stringify(arr));
+    }catch(e){
+      console.error('fuel save failed', e);
+      alert('Could not save — your browser storage may be full or disabled (private/incognito mode blocks this).');
+    }
   }
 
   function showFuelError(msg){
