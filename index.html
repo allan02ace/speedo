@@ -301,6 +301,65 @@
 
   /* logbook header actions */
   .logbook-actions{display:flex; align-items:center; gap:14px;}
+
+  /* section tabs */
+  .section-tabs{
+    display:flex; gap:4px; background:var(--panel-hi); border:1px solid var(--hairline);
+    border-radius:10px; padding:3px;
+  }
+  .section-tab{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:11px; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--ink-faint); background:none; border:none;
+    padding:7px 14px; border-radius:7px; cursor:pointer; transition:background .15s, color .15s;
+  }
+  .section-tab.active{background:var(--needle); color:#1a0d08;}
+  .section-tab:not(.active):hover{color:var(--ink);}
+
+  /* fuel tracker */
+  .fuel-form{
+    display:flex; gap:8px; margin-bottom:16px;
+  }
+  .fuel-field{flex:1; display:flex; flex-direction:column; gap:5px;}
+  .fuel-field label{
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .fuel-field input{
+    background:var(--panel-hi); border:1px solid var(--hairline); color:var(--ink);
+    font-family:'Space Mono',monospace; font-size:14px; font-weight:700;
+    border-radius:9px; padding:10px 10px; outline:none; width:100%;
+    font-variant-numeric:tabular-nums;
+  }
+  .fuel-field input:focus{border-color:var(--needle);}
+  .fuel-add-btn{
+    align-self:flex-end;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:12px; letter-spacing:0.05em; text-transform:uppercase;
+    background:var(--needle); color:#1a0d08; border:none; border-radius:9px;
+    padding:0 16px; height:38px; cursor:pointer; flex-shrink:0;
+  }
+  .fuel-add-btn:hover{filter:brightness(1.08);}
+  .fuel-error{
+    font-size:11px; color:var(--danger); margin:-10px 0 12px; display:none;
+  }
+  .fuel-entry{
+    display:flex; align-items:center; gap:12px; padding:12px 10px; border-bottom:1px solid var(--hairline);
+  }
+  .fuel-entry:last-child{border-bottom:none;}
+  .fuel-entry-date{font-family:'Space Mono',monospace; font-size:10px; color:var(--ink-faint); width:52px; line-height:1.3; flex-shrink:0;}
+  .fuel-entry-main{flex:1; min-width:0;}
+  .fuel-entry-odo{font-family:'Space Mono',monospace; font-weight:700; font-size:15px;}
+  .fuel-entry-sub{font-size:11px; color:var(--ink-dim); margin-top:2px;}
+  .fuel-consumption{
+    font-family:'Space Mono',monospace; font-weight:700; font-size:15px; color:var(--good);
+    text-align:right; flex-shrink:0;
+  }
+  .fuel-consumption.warn{color:var(--danger);}
+  .fuel-consumption-unit{font-size:9px; color:var(--ink-faint); font-weight:400; display:block; text-align:right;}
+  .fuel-entry-del{
+    background:none;border:none;color:var(--ink-faint);
+    font-size:16px; cursor:pointer; padding:4px 2px 4px 6px; flex-shrink:0;
+  }
+  .fuel-entry-del:hover{color:var(--danger);}
   .compare-toggle{
     font-family:'Space Mono',monospace;
     font-size:10px;
@@ -484,16 +543,41 @@
 
   <div class="logbook">
     <div class="logbook-header">
-      <div class="logbook-title">Logbook</div>
-      <div class="logbook-actions">
+      <div class="section-tabs">
+        <button class="section-tab active" id="tabRides">Rides</button>
+        <button class="section-tab" id="tabFuel">Fuel</button>
+      </div>
+      <div class="logbook-actions" id="ridesActions">
         <button class="compare-toggle" id="compareToggle">Compare</button>
         <button class="clear-all" id="clearAll">Clear all</button>
       </div>
+      <div class="logbook-actions" id="fuelActions" style="display:none;">
+        <button class="clear-all" id="fuelClearAll">Clear all</button>
+      </div>
     </div>
-    <div id="historyList"></div>
-    <div class="compare-bar" id="compareBar" style="display:none;">
-      <span id="compareBarText">Select 2 rides</span>
-      <button id="compareGoBtn" disabled>View comparison</button>
+
+    <div id="ridesSection">
+      <div id="historyList"></div>
+      <div class="compare-bar" id="compareBar" style="display:none;">
+        <span id="compareBarText">Select 2 rides</span>
+        <button id="compareGoBtn" disabled>View comparison</button>
+      </div>
+    </div>
+
+    <div id="fuelSection" style="display:none;">
+      <div class="fuel-form">
+        <div class="fuel-field">
+          <label for="odoInput">Odometer (km)</label>
+          <input type="number" inputmode="decimal" id="odoInput" placeholder="e.g. 45210">
+        </div>
+        <div class="fuel-field">
+          <label for="litersInput">Liters added</label>
+          <input type="number" inputmode="decimal" id="litersInput" placeholder="e.g. 32.5">
+        </div>
+        <button class="fuel-add-btn" id="fuelAddBtn">Add</button>
+      </div>
+      <div class="fuel-error" id="fuelError"></div>
+      <div id="fuelList"></div>
     </div>
   </div>
 
@@ -585,6 +669,18 @@
     pbTime: document.getElementById('pbTime'),
     pbSpeed: document.getElementById('pbSpeed'),
     pbDist: document.getElementById('pbDist'),
+    tabRides: document.getElementById('tabRides'),
+    tabFuel: document.getElementById('tabFuel'),
+    ridesSection: document.getElementById('ridesSection'),
+    fuelSection: document.getElementById('fuelSection'),
+    ridesActions: document.getElementById('ridesActions'),
+    fuelActions: document.getElementById('fuelActions'),
+    odoInput: document.getElementById('odoInput'),
+    litersInput: document.getElementById('litersInput'),
+    fuelAddBtn: document.getElementById('fuelAddBtn'),
+    fuelError: document.getElementById('fuelError'),
+    fuelList: document.getElementById('fuelList'),
+    fuelClearAll: document.getElementById('fuelClearAll'),
   };
 
   // ---------- gauge drawing ----------
@@ -733,7 +829,8 @@
   }
 
   function handlePosition(pos){
-    setGpsStatus('live', 'GPS Live');
+    const acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
+    setGpsStatus('live', acc !== null ? `GPS Live · ±${acc}m` : 'GPS Live');
     const { latitude, longitude, speed } = pos.coords;
     const now = pos.timestamp || Date.now();
 
@@ -854,7 +951,7 @@
 
     if(shouldSave && sessionStart){
       const duration = (Date.now() - sessionStart) / 1000;
-      if(duration > 5 && (distanceM > 20 || maxSpeedMs > 1)){
+      if(duration >= 3){
         // capture a final path point at the true end of the ride
         if(wasDemo){
           maybeSamplePathForce(demoLat, demoLon, duration, currentSpeedMs);
@@ -872,6 +969,9 @@
           unit: unit,
           path: sessionPath
         });
+        els.hintText.textContent = 'Session saved — see it in the logbook below.';
+      }else{
+        els.hintText.textContent = 'Session was too short to save (under 3 seconds).';
       }
     }
     sessionStart = null;
@@ -1245,6 +1345,102 @@
       startPlayback();
     }
   });
+
+  // ---------- section tabs ----------
+  els.tabRides.addEventListener('click', ()=>{
+    els.tabRides.classList.add('active'); els.tabFuel.classList.remove('active');
+    els.ridesSection.style.display = 'block'; els.fuelSection.style.display = 'none';
+    els.ridesActions.style.display = 'flex'; els.fuelActions.style.display = 'none';
+  });
+  els.tabFuel.addEventListener('click', ()=>{
+    els.tabFuel.classList.add('active'); els.tabRides.classList.remove('active');
+    els.fuelSection.style.display = 'block'; els.ridesSection.style.display = 'none';
+    els.fuelActions.style.display = 'flex'; els.ridesActions.style.display = 'none';
+    if(compareMode){ compareMode = false; compareSelection = []; els.compareToggle.classList.remove('active'); renderHistory(); }
+    renderFuel();
+  });
+
+  // ---------- fuel tracker ----------
+  async function loadFuel(){
+    try{
+      const r = await window.storage.get('fuel-entries', false);
+      return r ? JSON.parse(r.value) : [];
+    }catch(e){ return []; }
+  }
+  async function saveFuelArr(arr){
+    try{ await window.storage.set('fuel-entries', JSON.stringify(arr), false); }
+    catch(e){ console.error('fuel save failed', e); }
+  }
+
+  function showFuelError(msg){
+    els.fuelError.textContent = msg;
+    els.fuelError.style.display = msg ? 'block' : 'none';
+  }
+
+  els.fuelAddBtn.addEventListener('click', async ()=>{
+    showFuelError('');
+    const odo = parseFloat(els.odoInput.value);
+    const liters = parseFloat(els.litersInput.value);
+    if(!odo || odo <= 0){ showFuelError('Enter a valid odometer reading.'); return; }
+    if(!liters || liters <= 0){ showFuelError('Enter how many liters you added.'); return; }
+
+    const arr = await loadFuel();
+    arr.push({ id: Date.now().toString(36), date: Date.now(), odo, liters });
+    arr.sort((a,b)=> a.odo - b.odo);
+    await saveFuelArr(arr);
+    els.odoInput.value = ''; els.litersInput.value = '';
+    renderFuel();
+  });
+
+  els.fuelClearAll.addEventListener('click', async ()=>{
+    if(!confirm('Clear all fuel entries? This cannot be undone.')) return;
+    await saveFuelArr([]);
+    renderFuel();
+  });
+
+  async function deleteFuelEntry(id){
+    const arr = await loadFuel();
+    await saveFuelArr(arr.filter(e => e.id !== id));
+    renderFuel();
+  }
+
+  async function renderFuel(){
+    const arr = await loadFuel(); // ascending by odometer
+    if(!arr.length){
+      els.fuelList.innerHTML = `<div class="empty-state"><span class="glyph">⛽</span>No fill-ups logged yet — add your first one above.</div>`;
+      return;
+    }
+    const rows = [];
+    for(let i = arr.length - 1; i >= 0; i--){
+      const e = arr[i];
+      const prev = arr[i-1];
+      let consumptionHtml = `<div class="fuel-consumption" style="color:var(--ink-faint); font-weight:400; font-size:11px;">first fill</div>`;
+      if(prev){
+        const dist = e.odo - prev.odo;
+        if(dist <= 0){
+          consumptionHtml = `<div class="fuel-consumption warn">check odo</div>`;
+        }else{
+          const kmpl = dist / e.liters;
+          consumptionHtml = `<div class="fuel-consumption">${kmpl.toFixed(1)}<span class="fuel-consumption-unit">km/L</span></div>`;
+        }
+      }
+      rows.push(`
+        <div class="fuel-entry">
+          <div class="fuel-entry-date">${formatDate(e.date)}</div>
+          <div class="fuel-entry-main">
+            <div class="fuel-entry-odo">${e.odo.toLocaleString()} km</div>
+            <div class="fuel-entry-sub">${e.liters}L added</div>
+          </div>
+          ${consumptionHtml}
+          <button class="fuel-entry-del" data-id="${e.id}" title="Delete">✕</button>
+        </div>
+      `);
+    }
+    els.fuelList.innerHTML = rows.join('');
+    els.fuelList.querySelectorAll('.fuel-entry-del').forEach(btn=>{
+      btn.addEventListener('click', ()=> deleteFuelEntry(btn.getAttribute('data-id')));
+    });
+  }
 
   // ---------- init ----------
   buildDial();
