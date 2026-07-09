@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.allanace.speedometer",
+      "sha256_cert_fingerprints": [
+        "4D:1E:A7:0F:C8:2A:B4:B5:F6:B3:DA:AC:40:CA:28:BE:20:16:63:FA:F9:62:9B:87:BC:A6:05:70:31:06:49:CE"
+      ]
+    }
+  }
+]
