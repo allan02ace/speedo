@@ -1163,12 +1163,17 @@ window.storage = (function () {
     updateLiveStats();
   }
 
-  function handleGeoError(err){
-    setGpsStatus('error', 'GPS unavailable');
-    els.hintText.innerHTML = `Location access was denied or is unavailable. <button id="demoBtn">Try demo mode instead</button>`;
-    document.getElementById('demoBtn').addEventListener('click', startDemo);
-    stopTracking(false);
-  }
+  function handleGeoError(err) {
+    alert(
+        "Code: " + err.code +
+        "\nMessage: " + err.message
+    );
+
+    console.error(err);
+
+    // DON'T stop tracking yet
+    setGpsStatus('error', err.message);
+}
 
   function setGpsStatus(state, text){
     els.gpsDot.className = 'gps-dot' + (state ? ' '+state : '');
