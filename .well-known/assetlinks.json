@@ -1,14 +1,8 @@
-[
-  {
-    "relation": [
-      "delegate_permission/common.handle_all_urls"
-    ],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.allanace.speedometer",
-      "sha256_cert_fingerprints": [
-        "4D:1E:A7:0F:C8:2A:B4:B5:F6:B3:DA:AC:40:CA:28:BE:20:16:63:FA:F9:62:9B:87:BC:A6:05:70:31:06:49:CE"
-      ]
-    }
-  }
-]
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.allan02ace.speedo",
+        "sha256_cert_fingerprints": ["0C:97:62:6D:F4:BF:17:E6:CB:90:51:CF:CA:5F:4A:62:49:55:6A:42:BB:C8:B2:2D:D5:1E:51:3F:44:6D:3C:4A"]
+      }
+    }]
