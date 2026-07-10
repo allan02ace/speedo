@@ -1,13 +1,20 @@
 {
-  "name": "Velocity Log",
-  "short_name": "Velocity Log",
-  "description": "GPS speedometer with saved trip history.",
+  "id": "io.github.allan02ace.speedo",
+  "name": "A-Speed",
+  "short_name": "A-Speed",
+  "description": "Speedometer that save your ride and gas history",
+  "lang": "en",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0e1012",
   "theme_color": "#0e1012",
+  "categories": [
+    "navigation",
+    "transportation",
+    "travel"
+  ],
   "icons": [
     {
       "src": "icon-192.png",
