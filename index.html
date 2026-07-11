@@ -204,6 +204,43 @@
   }
   .theme-toggle:hover{border-color:var(--ink-faint); color:var(--ink);}
   .theme-toggle:active{transform:scale(0.94);}
+  .debug-toggle{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    background:var(--panel-hi);
+    border:1px solid var(--hairline);
+    color:var(--ink-faint);
+    width:32px; height:32px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    cursor:pointer;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .debug-toggle:hover{border-color:var(--ink-faint); color:var(--ink);}
+  .debug-toggle.active{background:var(--needle); color:#1a0d08; border-color:var(--needle);}
+
+  .debug-panel{
+    display:none;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--hairline);
+  }
+  .debug-panel.open{display:block;}
+  .debug-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    color:var(--ink-faint);
+    padding:2px 0;
+  }
+  .debug-row .debug-label{letter-spacing:0.06em; text-transform:uppercase;}
+  .debug-row .debug-val{color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums;}
+  .debug-row .debug-val.debug-source{color:var(--gold); font-weight:600;}
+  .debug-note{
+    font-size:10px; color:var(--ink-faint); margin-top:6px; line-height:1.5;
+  }
 
   /* ride note input */
   .entry-note-wrap{margin-top:6px;}
@@ -262,8 +299,37 @@
     display:grid;
     grid-template-columns:repeat(4,1fr);
     gap:8px;
-    margin-bottom:14px;
+    margin-bottom:10px;
   }
+  .stat-row.stat-row-5{
+    grid-template-columns:repeat(5,1fr);
+  }
+  .stat-row-5 .stat{padding:8px 2px;}
+  .stat-row-5 .stat-val{font-size:13px;}
+  .btn-row{
+    display:flex;
+    gap:8px;
+  }
+  .pause-btn{
+    flex:0 0 34%;
+    padding:15px 8px;
+    border-radius:12px;
+    border:1px solid var(--hairline);
+    background:var(--panel-hi);
+    color:var(--ink-dim);
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:filter .15s, transform .05s, background .15s, color .15s;
+    display:none;
+  }
+  .pause-btn.visible{display:block;}
+  .pause-btn:active{transform:scale(0.985);}
+  .pause-btn.active{background:var(--gold); color:#1a0d08; border-color:var(--gold);}
+  .btn-row .main-btn{flex:1 1 auto;}
   .stat{
     text-align:center;
     padding:10px 4px;
@@ -398,9 +464,9 @@
 
   /* fuel tracker */
   .fuel-form{
-    display:flex; gap:8px; margin-bottom:16px;
+    display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;
   }
-  .fuel-field{flex:1; display:flex; flex-direction:column; gap:5px;}
+  .fuel-field{flex:1; display:flex; flex-direction:column; gap:5px; min-width:100px;}
   .fuel-field label{
     font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase;
     color:var(--ink-faint);
@@ -419,8 +485,30 @@
     padding:0 16px; height:38px; cursor:pointer; flex-shrink:0;
   }
   .fuel-add-btn:hover{filter:brightness(1.08);}
+  .fuel-full-row{
+    display:flex; align-items:center; gap:7px;
+    margin:-2px 0 14px;
+    font-family:'Inter',sans-serif; font-size:12px; color:var(--ink-dim);
+  }
+  .fuel-full-row input[type="checkbox"]{
+    width:15px; height:15px; accent-color:var(--needle); cursor:pointer;
+  }
+  .fuel-full-row label{cursor:pointer;}
+  .tank-card{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--panel-hi); border:1px solid var(--hairline); border-radius:12px;
+    padding:10px 12px; margin-bottom:14px;
+  }
+  .tank-card-info{font-size:11px; color:var(--ink-dim);}
+  .tank-card-info b{color:var(--ink); font-family:'Space Mono',monospace;}
+  .tank-edit-btn{
+    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
+    background:none; border:1px solid var(--hairline); color:var(--ink-faint);
+    padding:6px 10px; border-radius:20px; cursor:pointer;
+  }
+  .tank-edit-btn:hover{color:var(--ink); border-color:var(--ink-faint);}
   .fuel-error{
-    font-size:11px; color:var(--danger); margin:-10px 0 12px; display:none;
+    font-size:11px; color:var(--danger); margin:-6px 0 12px; display:none;
   }
   .fuel-entry{
     display:flex; align-items:center; gap:12px; padding:12px 10px; border-bottom:1px solid var(--hairline);
@@ -428,7 +516,11 @@
   .fuel-entry:last-child{border-bottom:none;}
   .fuel-entry-date{font-family:'Space Mono',monospace; font-size:10px; color:var(--ink-faint); width:52px; line-height:1.3; flex-shrink:0;}
   .fuel-entry-main{flex:1; min-width:0;}
-  .fuel-entry-odo{font-family:'Space Mono',monospace; font-weight:700; font-size:15px;}
+  .fuel-entry-odo{font-family:'Space Mono',monospace; font-weight:700; font-size:15px; display:flex; align-items:center; gap:6px;}
+  .fuel-entry-partial-tag{
+    font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--gold); border:1px solid var(--gold); border-radius:8px; padding:1px 5px;
+  }
   .fuel-entry-sub{font-size:11px; color:var(--ink-dim); margin-top:2px;}
   .fuel-consumption{
     font-family:'Space Mono',monospace; font-weight:700; font-size:15px; color:var(--good);
@@ -441,6 +533,33 @@
     font-size:16px; cursor:pointer; padding:4px 2px 4px 6px; flex-shrink:0;
   }
   .fuel-entry-del:hover{color:var(--danger);}
+
+  /* tank setup modal */
+  .tank-modal-body{padding:16px;}
+  .tank-modal-desc{font-size:12px; color:var(--ink-dim); line-height:1.5; margin-bottom:16px;}
+  .tank-modal-field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  .tank-modal-field label{
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .tank-modal-field input{
+    background:var(--panel-hi); border:1px solid var(--hairline); color:var(--ink);
+    font-family:'Space Mono',monospace; font-size:18px; font-weight:700;
+    border-radius:10px; padding:12px; outline:none; width:100%;
+  }
+  .tank-modal-field input:focus{border-color:var(--needle);}
+  .tank-modal-btns{display:flex; gap:10px;}
+  .tank-save-btn{
+    flex:1;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; letter-spacing:0.06em; text-transform:uppercase;
+    background:var(--needle); color:#1a0d08; border:none; border-radius:10px;
+    padding:13px; cursor:pointer;
+  }
+  .tank-skip-btn{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; letter-spacing:0.06em; text-transform:uppercase;
+    background:none; color:var(--ink-faint); border:1px solid var(--hairline); border-radius:10px;
+    padding:13px 16px; cursor:pointer;
+  }
   .compare-toggle{
     font-family:'Space Mono',monospace;
     font-size:10px;
@@ -599,6 +718,7 @@
       <div class="brand-title">Velocity Log</div>
     </div>
     <div class="header-btns">
+      <button class="debug-toggle" id="debugToggle" title="Speed accuracy diagnostics">🛠</button>
       <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
       <button class="unit-toggle" id="unitToggle">MPH</button>
     </div>
@@ -612,17 +732,30 @@
       <div class="readout-num" id="readoutNum">0</div>
       <div class="readout-unit" id="readoutUnit">MPH</div>
       <div class="gps-status"><span class="gps-dot" id="gpsDot"></span><span id="gpsStatusText">Idle</span></div>
+      <div class="debug-panel" id="debugPanel">
+        <div class="debug-row"><span class="debug-label">Device speed</span><span class="debug-val" id="dbgRawSpeed">–</span></div>
+        <div class="debug-row"><span class="debug-label">GPS-calculated speed</span><span class="debug-val" id="dbgCalcSpeed">–</span></div>
+        <div class="debug-row"><span class="debug-label">Shown on dial</span><span class="debug-val debug-source" id="dbgSource">–</span></div>
+        <div class="debug-row"><span class="debug-label">Accuracy (±m)</span><span class="debug-val" id="dbgAccuracy">–</span></div>
+        <div class="debug-row"><span class="debug-label">Fix interval</span><span class="debug-val" id="dbgFixInterval">–</span></div>
+        <div class="debug-row"><span class="debug-label">Distance this fix</span><span class="debug-val" id="dbgFixDist">–</span></div>
+        <div class="debug-note">"Device speed" comes straight from your phone's GPS chip. "GPS-calculated" is worked out from the distance and time between the last two points. A big, consistent gap between them points to the device chip; if both agree but are still off from your odometer, it's more likely mounting/signal quality.</div>
+      </div>
     </div>
   </div>
 
   <div class="controls">
-    <div class="stat-row">
+    <div class="stat-row stat-row-5">
       <div class="stat"><div class="stat-label">Distance</div><div class="stat-val" id="statDist">0.0</div></div>
-      <div class="stat"><div class="stat-label">Time</div><div class="stat-val" id="statTime">0:00</div></div>
+      <div class="stat"><div class="stat-label">Moving</div><div class="stat-val" id="statTime">0:00</div></div>
+      <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="statTotalTime">0:00</div></div>
       <div class="stat"><div class="stat-label">Avg</div><div class="stat-val" id="statAvg">0</div></div>
       <div class="stat"><div class="stat-label">Max</div><div class="stat-val" id="statMax">0</div></div>
     </div>
-    <button class="main-btn start" id="sessionBtn">Start Tracking</button>
+    <div class="btn-row">
+      <button class="main-btn start" id="sessionBtn">Start Tracking</button>
+      <button class="pause-btn" id="pauseBtn">Pause</button>
+    </div>
     <div class="hint" id="hintText">Uses your device's GPS. Location is only used while a session is running.</div>
   </div>
 
@@ -666,6 +799,10 @@
     </div>
 
     <div id="fuelSection" style="display:none;">
+      <div class="tank-card" id="tankCard">
+        <div class="tank-card-info" id="tankCardInfo">Tank capacity not set</div>
+        <button class="tank-edit-btn" id="tankEditBtn">Set tank</button>
+      </div>
       <div class="fuel-form">
         <div class="fuel-field">
           <label for="odoInput">Odometer (km)</label>
@@ -677,11 +814,36 @@
         </div>
         <button class="fuel-add-btn" id="fuelAddBtn">Add</button>
       </div>
+      <div class="fuel-full-row">
+        <input type="checkbox" id="fuelFullCheck" checked>
+        <label for="fuelFullCheck">Filled to full tank</label>
+      </div>
       <div class="fuel-error" id="fuelError"></div>
       <div id="fuelList"></div>
     </div>
   </div>
 
+</div>
+
+<!-- Tank capacity setup modal -->
+<div class="modal-backdrop" id="tankModalBackdrop">
+  <div class="modal-sheet">
+    <div class="modal-head">
+      <div class="modal-title" id="tankModalTitle">Tank Capacity</div>
+      <button class="modal-close" id="tankModalClose">✕</button>
+    </div>
+    <div class="modal-body tank-modal-body">
+      <div class="tank-modal-desc">Set your fuel tank's full capacity so fill-up and consumption stats are calculated accurately — especially for partial (not-to-full) fill-ups.</div>
+      <div class="tank-modal-field">
+        <label for="tankCapacityInput">Tank capacity (liters)</label>
+        <input type="number" inputmode="decimal" id="tankCapacityInput" placeholder="e.g. 12.5">
+      </div>
+      <div class="tank-modal-btns">
+        <button class="tank-skip-btn" id="tankSkipBtn">Skip</button>
+        <button class="tank-save-btn" id="tankSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Ride detail / compare modal -->
@@ -837,6 +999,7 @@ window.storage = (function () {
   let demoTimer = null;
 
   let sessionStart = null;
+  let uiTickTimer = null; // keeps Moving/Total timers ticking every second, independent of GPS fix rate
   let lastPos = null;
   let distanceM = 0;
   let maxSpeedMs = 0;
@@ -851,8 +1014,10 @@ window.storage = (function () {
 
   // auto-pause
   const PAUSE_SPEED_THRESHOLD_MS = 0.9; // ~2mph / ~3.2km/h
-  const PAUSE_DELAY_MS = 8000;
-  let paused = false;
+  const PAUSE_DELAY_MS = 3000; // was 8000 — now pauses after 3s stopped instead of 8s
+  let autoPaused = false;   // true when auto-pause has kicked in from low speed
+  let manualPaused = false; // true when the user tapped the Pause button
+  let paused = false;       // effective pause = autoPaused || manualPaused
   let belowThresholdSince = null;
   let pauseStartTs = null;
   let pausedAccumMs = 0;
@@ -866,17 +1031,33 @@ window.storage = (function () {
   // theme
   let theme = 'dark';
 
+  // fuel / tank
+  let tankCapacityL = null; // null = not yet set
+
+  // debug / accuracy diagnostics
+  let debugMode = false;
+
   const els = {
     unitToggle: document.getElementById('unitToggle'),
+    debugToggle: document.getElementById('debugToggle'),
+    debugPanel: document.getElementById('debugPanel'),
+    dbgRawSpeed: document.getElementById('dbgRawSpeed'),
+    dbgCalcSpeed: document.getElementById('dbgCalcSpeed'),
+    dbgSource: document.getElementById('dbgSource'),
+    dbgAccuracy: document.getElementById('dbgAccuracy'),
+    dbgFixInterval: document.getElementById('dbgFixInterval'),
+    dbgFixDist: document.getElementById('dbgFixDist'),
     readoutNum: document.getElementById('readoutNum'),
     readoutUnit: document.getElementById('readoutUnit'),
     gpsDot: document.getElementById('gpsDot'),
     gpsStatusText: document.getElementById('gpsStatusText'),
     statDist: document.getElementById('statDist'),
     statTime: document.getElementById('statTime'),
+    statTotalTime: document.getElementById('statTotalTime'),
     statAvg: document.getElementById('statAvg'),
     statMax: document.getElementById('statMax'),
     sessionBtn: document.getElementById('sessionBtn'),
+    pauseBtn: document.getElementById('pauseBtn'),
     hintText: document.getElementById('hintText'),
     historyList: document.getElementById('historyList'),
     clearAll: document.getElementById('clearAll'),
@@ -905,10 +1086,19 @@ window.storage = (function () {
     fuelActions: document.getElementById('fuelActions'),
     odoInput: document.getElementById('odoInput'),
     litersInput: document.getElementById('litersInput'),
+    fuelFullCheck: document.getElementById('fuelFullCheck'),
     fuelAddBtn: document.getElementById('fuelAddBtn'),
     fuelError: document.getElementById('fuelError'),
     fuelList: document.getElementById('fuelList'),
     fuelClearAll: document.getElementById('fuelClearAll'),
+    tankCard: document.getElementById('tankCard'),
+    tankCardInfo: document.getElementById('tankCardInfo'),
+    tankEditBtn: document.getElementById('tankEditBtn'),
+    tankModalBackdrop: document.getElementById('tankModalBackdrop'),
+    tankModalClose: document.getElementById('tankModalClose'),
+    tankCapacityInput: document.getElementById('tankCapacityInput'),
+    tankSaveBtn: document.getElementById('tankSaveBtn'),
+    tankSkipBtn: document.getElementById('tankSkipBtn'),
     themeToggle: document.getElementById('themeToggle'),
     weekRides: document.getElementById('weekRides'),
     weekDist: document.getElementById('weekDist'),
@@ -1027,6 +1217,33 @@ window.storage = (function () {
     try{ await window.storage.set('theme', theme); }catch(e){}
   });
 
+  // ---------- debug / accuracy diagnostics ----------
+  els.debugToggle.addEventListener('click', ()=>{
+    debugMode = !debugMode;
+    els.debugToggle.classList.toggle('active', debugMode);
+    els.debugPanel.classList.toggle('open', debugMode);
+    if(!debugMode) resetDebugPanel();
+  });
+
+  function resetDebugPanel(){
+    els.dbgRawSpeed.textContent = '–';
+    els.dbgCalcSpeed.textContent = '–';
+    els.dbgSource.textContent = '–';
+    els.dbgAccuracy.textContent = '–';
+    els.dbgFixInterval.textContent = '–';
+    els.dbgFixDist.textContent = '–';
+  }
+
+  function updateDebugPanel(data){
+    if(!debugMode) return;
+    els.dbgRawSpeed.textContent = data.rawSpeed !== null ? `${Math.round(msToUnit(data.rawSpeed))} ${unit}` : 'not reported';
+    els.dbgCalcSpeed.textContent = data.calcSpeed !== null ? `${Math.round(msToUnit(data.calcSpeed))} ${unit}` : '–';
+    els.dbgSource.textContent = data.source;
+    els.dbgAccuracy.textContent = data.accuracy !== null ? `±${data.accuracy}m` : '–';
+    els.dbgFixInterval.textContent = data.dt !== null ? `${data.dt.toFixed(1)}s` : '–';
+    els.dbgFixDist.textContent = data.dist !== null ? `${Math.round(data.dist)}m` : '–';
+  }
+
   // ---------- readout ----------
   function updateReadout(ms){
     const v = msToUnit(ms);
@@ -1037,11 +1254,14 @@ window.storage = (function () {
   function updateLiveStats(){
     els.statDist.textContent = metersToDistUnit(distanceM).toFixed(1);
     let elapsed = 0;
+    let totalElapsed = 0;
     if(sessionStart){
       const curPausedMs = pausedAccumMs + (paused && pauseStartTs ? (Date.now() - pauseStartTs) : 0);
       elapsed = Math.max(0, (Date.now() - sessionStart - curPausedMs) / 1000);
+      totalElapsed = Math.max(0, (Date.now() - sessionStart) / 1000);
     }
     els.statTime.textContent = formatDuration(elapsed);
+    els.statTotalTime.textContent = formatDuration(totalElapsed);
     const avgMs = speedSamples.length ? speedSamples.reduce((a,b)=>a+b,0)/speedSamples.length : 0;
     els.statAvg.textContent = Math.round(msToUnit(avgMs));
     els.statMax.textContent = Math.round(msToUnit(maxSpeedMs));
@@ -1054,32 +1274,63 @@ window.storage = (function () {
     return `${m}:${s.toString().padStart(2,'0')}`;
   }
 
-  // ---------- auto-pause ----------
-  // Returns true if the sample should be treated as "paused" (excluded from
-  // distance/avg/time accumulation) — sustained near-zero speed, e.g. red lights.
-  function checkAutoPause(speedMs, nowTs){
-    if(speedMs < PAUSE_SPEED_THRESHOLD_MS){
-      if(belowThresholdSince === null) belowThresholdSince = nowTs;
-      if(!paused && (nowTs - belowThresholdSince) >= PAUSE_DELAY_MS){
-        paused = true;
-        pauseStartTs = nowTs;
-      }
-    }else{
-      belowThresholdSince = null;
-      if(paused){
-        paused = false;
-        pausedAccumMs += nowTs - pauseStartTs;
-        pauseStartTs = null;
-      }
+  // ---------- pause (auto + manual) ----------
+  // "paused" is the effective pause state = autoPaused || manualPaused.
+  // Distance/avg/max-speed/time accumulation all gate off this single flag,
+  // so it doesn't matter whether the ride paused itself (sustained near-zero
+  // speed, e.g. a red light) or the user tapped the Pause button.
+  function applyEffectivePause(nowTs){
+    const shouldPause = autoPaused || manualPaused;
+    if(shouldPause && !paused){
+      paused = true;
+      pauseStartTs = nowTs;
+    }else if(!shouldPause && paused){
+      paused = false;
+      pausedAccumMs += nowTs - pauseStartTs;
+      pauseStartTs = null;
     }
     return paused;
   }
 
+  // Returns true if the sample should be treated as effectively paused.
+  function checkAutoPause(speedMs, nowTs){
+    if(manualPaused){
+      // don't let speed changes fight a manual pause
+      return applyEffectivePause(nowTs);
+    }
+    if(speedMs < PAUSE_SPEED_THRESHOLD_MS){
+      if(belowThresholdSince === null) belowThresholdSince = nowTs;
+      if(!autoPaused && (nowTs - belowThresholdSince) >= PAUSE_DELAY_MS){
+        autoPaused = true;
+      }
+    }else{
+      belowThresholdSince = null;
+      autoPaused = false;
+    }
+    return applyEffectivePause(nowTs);
+  }
+
+  function toggleManualPause(){
+    if(!tracking) return;
+    manualPaused = !manualPaused;
+    applyEffectivePause(Date.now());
+    els.pauseBtn.textContent = manualPaused ? 'Resume' : 'Pause';
+    els.pauseBtn.classList.toggle('active', manualPaused);
+    setGpsStatus(paused ? 'paused' : 'live', manualPaused
+      ? 'Paused · tap Resume to continue'
+      : (autoPaused ? 'Auto-paused · resume by moving' : 'GPS Live'));
+    updateLiveStats();
+  }
+
   function resetAutoPause(){
+    autoPaused = false;
+    manualPaused = false;
     paused = false;
     belowThresholdSince = null;
     pauseStartTs = null;
     pausedAccumMs = 0;
+    els.pauseBtn.textContent = 'Pause';
+    els.pauseBtn.classList.remove('active');
   }
 
   // ---------- haversine ----------
@@ -1125,25 +1376,37 @@ window.storage = (function () {
     // still measures distance from the last trustworthy point.
     if(acc !== null && acc > MAX_ACCURACY_M){
       setGpsStatus('weak', `GPS weak · ±${acc}m`);
+      updateDebugPanel({ rawSpeed: null, calcSpeed: null, source: `skipped (±${acc}m too weak)`, accuracy: acc, dt: null, dist: null });
       return;
     }
 
     const { latitude, longitude, speed } = pos.coords;
     const now = pos.timestamp || Date.now();
 
-    let instSpeed = (typeof speed === 'number' && speed !== null && speed >= 0) ? speed : null;
+    // Keep the device chip's raw speed and the haversine-derived speed
+    // separate so the debug panel can show both — this is what pins down
+    // whether a speed discrepancy comes from the phone's GPS chip itself
+    // or from position/sampling issues.
+    const rawSpeed = (typeof speed === 'number' && speed !== null && speed >= 0) ? speed : null;
+    let calcSpeed = null;
+    let dt = null, d = null;
 
     if(lastPos){
-      const d = haversine(lastPos.lat, lastPos.lon, latitude, longitude);
-      const dt = (now - lastPos.t) / 1000;
-      if(instSpeed === null && dt > 0){
-        instSpeed = d / dt;
+      d = haversine(lastPos.lat, lastPos.lon, latitude, longitude);
+      dt = (now - lastPos.t) / 1000;
+      if(dt > 0){
+        calcSpeed = d / dt;
       }
       if(dt > 0 && d < 1000 && !paused){ // ignore GPS jumps, and don't accrue while auto-paused
         distanceM += d;
       }
     }
     lastPos = { lat: latitude, lon: longitude, t: now };
+
+    const instSpeed = rawSpeed !== null ? rawSpeed : calcSpeed;
+    const source = rawSpeed !== null ? 'device (coords.speed)' : (calcSpeed !== null ? 'calculated (distance÷time)' : 'no data yet');
+
+    updateDebugPanel({ rawSpeed, calcSpeed, source, accuracy: acc, dt, dist: d });
 
     if(instSpeed !== null){
       currentSpeedMs = instSpeed;
@@ -1156,7 +1419,7 @@ window.storage = (function () {
     }
 
     setGpsStatus(paused ? 'paused' : 'live', paused
-      ? 'Auto-paused · resume by moving'
+      ? (manualPaused ? 'Paused · tap Resume to continue' : 'Auto-paused · resume by moving')
       : (acc !== null ? `GPS Live · ±${acc}m` : 'GPS Live'));
 
     const tSec = sessionStart ? (now - sessionStart)/1000 : 0;
@@ -1221,6 +1484,7 @@ window.storage = (function () {
     els.hintText.textContent = 'Simulating a drive — no real GPS is used.';
     els.sessionBtn.textContent = 'Stop Tracking';
     els.sessionBtn.classList.remove('start'); els.sessionBtn.classList.add('stop');
+    els.pauseBtn.classList.add('visible');
     requestWakeLock();
 
     let t = 0;
@@ -1231,7 +1495,9 @@ window.storage = (function () {
       updateReadout(simMs);
       const now = Date.now();
       const isPaused = checkAutoPause(simMs, now);
-      setGpsStatus(isPaused ? 'paused' : 'live', isPaused ? 'Auto-paused · resume by moving' : 'Demo mode');
+      setGpsStatus(isPaused ? 'paused' : 'live', isPaused
+        ? (manualPaused ? 'Paused · tap Resume to continue' : 'Auto-paused · resume by moving')
+        : 'Demo mode');
 
       if(!isPaused){
         maxSpeedMs = Math.max(maxSpeedMs, simMs);
@@ -1269,11 +1535,15 @@ window.storage = (function () {
     distanceM = 0; maxSpeedMs = 0; speedSamples = []; currentSpeedMs = 0; lastPos = null;
     sessionPath = []; lastPathSample = null;
     resetAutoPause();
+    resetDebugPanel();
     setGpsStatus('', 'Locating…');
     els.hintText.textContent = 'Keep this screen open while you drive or ride.';
     els.sessionBtn.textContent = 'Stop Tracking';
     els.sessionBtn.classList.remove('start'); els.sessionBtn.classList.add('stop');
+    els.pauseBtn.classList.add('visible');
     requestWakeLock();
+    if(uiTickTimer) clearInterval(uiTickTimer);
+    uiTickTimer = setInterval(updateLiveStats, 1000);
 
     watchId = navigator.geolocation.watchPosition(handlePosition, handleGeoError, {
       enableHighAccuracy: true,
@@ -1288,11 +1558,13 @@ window.storage = (function () {
       navigator.geolocation.clearWatch(watchId);
       watchId = null;
     }
+    if(uiTickTimer){ clearInterval(uiTickTimer); uiTickTimer = null; }
     const wasDemo = demoMode;
     if(demoMode) stopDemo();
     setGpsStatus('', 'Idle');
     els.sessionBtn.textContent = 'Start Tracking';
     els.sessionBtn.classList.remove('stop'); els.sessionBtn.classList.add('start');
+    els.pauseBtn.classList.remove('visible');
     els.hintText.textContent = "Uses your device's GPS. Location is only used while a session is running.";
 
     if(shouldSave && sessionStart){
@@ -1335,6 +1607,8 @@ window.storage = (function () {
       startTracking();
     }
   });
+
+  els.pauseBtn.addEventListener('click', toggleManualPause);
 
   // ---------- storage ----------
   async function loadHistory(){
@@ -1737,12 +2011,75 @@ window.storage = (function () {
     els.ridesSection.style.display = 'block'; els.fuelSection.style.display = 'none';
     els.ridesActions.style.display = 'flex'; els.fuelActions.style.display = 'none';
   });
-  els.tabFuel.addEventListener('click', ()=>{
+  els.tabFuel.addEventListener('click', async ()=>{
     els.tabFuel.classList.add('active'); els.tabRides.classList.remove('active');
     els.fuelSection.style.display = 'block'; els.ridesSection.style.display = 'none';
     els.fuelActions.style.display = 'flex'; els.ridesActions.style.display = 'none';
     if(compareMode){ compareMode = false; compareSelection = []; els.compareToggle.classList.remove('active'); renderHistory(); }
+    if(tankCapacityL === null){
+      tankCapacityL = await loadTankCapacity();
+    }
+    renderTankCard();
+    if(tankCapacityL === undefined || tankCapacityL === null){
+      openTankModal();
+    }
     renderFuel();
+  });
+
+  // ---------- tank capacity ----------
+  async function loadTankCapacity(){
+    try{
+      const r = await window.storage.get('tank-capacity', false);
+      return r ? JSON.parse(r.value) : null;
+    }catch(e){ return null; }
+  }
+  async function saveTankCapacity(val){
+    try{ await window.storage.set('tank-capacity', JSON.stringify(val), false); }
+    catch(e){ console.error('tank capacity save failed', e); }
+  }
+
+  function renderTankCard(){
+    if(tankCapacityL){
+      els.tankCardInfo.innerHTML = `Tank capacity: <b>${tankCapacityL}L</b>`;
+      els.tankEditBtn.textContent = 'Edit';
+    }else{
+      els.tankCardInfo.textContent = 'Tank capacity not set — fill-up stats may be less accurate';
+      els.tankEditBtn.textContent = 'Set tank';
+    }
+  }
+
+  function openTankModal(){
+    els.tankCapacityInput.value = tankCapacityL || '';
+    els.tankModalBackdrop.classList.add('open');
+    setTimeout(()=> els.tankCapacityInput.focus(), 50);
+  }
+  function closeTankModal(){
+    els.tankModalBackdrop.classList.remove('open');
+  }
+
+  els.tankEditBtn.addEventListener('click', openTankModal);
+  els.tankModalClose.addEventListener('click', closeTankModal);
+  els.tankSkipBtn.addEventListener('click', async ()=>{
+    // mark as "asked" so we don't nag every time the tab is opened, without saving a bogus capacity
+    if(tankCapacityL === null) await saveTankCapacity(0);
+    tankCapacityL = 0;
+    closeTankModal();
+    renderTankCard();
+  });
+  els.tankSaveBtn.addEventListener('click', async ()=>{
+    const val = parseFloat(els.tankCapacityInput.value);
+    if(!val || val <= 0){
+      els.tankCapacityInput.focus();
+      return;
+    }
+    tankCapacityL = val;
+    await saveTankCapacity(val);
+    closeTankModal();
+    renderTankCard();
+    renderFuel();
+  });
+  els.tankModalBackdrop.addEventListener('click', (ev)=>{
+    if(ev.target === els.tankModalBackdrop) closeTankModal();
   });
 
   // ---------- fuel tracker ----------
@@ -1766,14 +2103,20 @@ window.storage = (function () {
     showFuelError('');
     const odo = parseFloat(els.odoInput.value);
     const liters = parseFloat(els.litersInput.value);
+    const full = els.fuelFullCheck.checked;
     if(!odo || odo <= 0){ showFuelError('Enter a valid odometer reading.'); return; }
     if(!liters || liters <= 0){ showFuelError('Enter how many liters you added.'); return; }
+    if(tankCapacityL && liters > tankCapacityL * 1.05){
+      showFuelError(`That's more than your ${tankCapacityL}L tank holds — double-check the amount.`);
+      return;
+    }
 
     const arr = await loadFuel();
-    arr.push({ id: Date.now().toString(36), date: Date.now(), odo, liters });
+    arr.push({ id: Date.now().toString(36), date: Date.now(), odo, liters, full });
     arr.sort((a,b)=> a.odo - b.odo);
     await saveFuelArr(arr);
     els.odoInput.value = ''; els.litersInput.value = '';
+    els.fuelFullCheck.checked = true;
     renderFuel();
   });
 
@@ -1789,31 +2132,74 @@ window.storage = (function () {
     renderFuel();
   }
 
+  // Computes accurate km/L per entry using the standard full-to-full method:
+  // consumption is only meaningful across a span that starts and ends on a
+  // "filled to full" fill-up. Partial fill-ups in between just add their
+  // liters to the running total for that span, without producing their own
+  // km/L number (since we don't yet know how much fuel was actually burned
+  // until the tank is topped off again).
+  function computeFuelConsumption(arr){
+    // arr must be ascending by odo
+    const results = new Map(); // id -> { kmpl, partial }
+    let lastFullOdo = null;
+    let litersSinceLastFull = 0;
+    let sawFirstFull = false;
+
+    arr.forEach(e => {
+      const isFull = e.full !== false; // older entries without the field are treated as full, matching old behavior
+      litersSinceLastFull += e.liters;
+
+      if(!isFull){
+        results.set(e.id, { partial: true });
+        return;
+      }
+
+      if(!sawFirstFull){
+        // first full fill establishes the baseline — no consumption number yet
+        results.set(e.id, { firstFull: true });
+      }else{
+        const dist = e.odo - lastFullOdo;
+        if(dist <= 0){
+          results.set(e.id, { warn: true });
+        }else{
+          results.set(e.id, { kmpl: dist / litersSinceLastFull });
+        }
+      }
+      lastFullOdo = e.odo;
+      litersSinceLastFull = 0;
+      sawFirstFull = true;
+    });
+
+    return results;
+  }
+
   async function renderFuel(){
     const arr = await loadFuel(); // ascending by odometer
     if(!arr.length){
       els.fuelList.innerHTML = `<div class="empty-state"><span class="glyph">⛽</span>No fill-ups logged yet — add your first one above.</div>`;
       return;
     }
+    const consumption = computeFuelConsumption(arr);
     const rows = [];
     for(let i = arr.length - 1; i >= 0; i--){
       const e = arr[i];
-      const prev = arr[i-1];
-      let consumptionHtml = `<div class="fuel-consumption" style="color:var(--ink-faint); font-weight:400; font-size:11px;">first fill</div>`;
-      if(prev){
-        const dist = e.odo - prev.odo;
-        if(dist <= 0){
-          consumptionHtml = `<div class="fuel-consumption warn">check odo</div>`;
-        }else{
-          const kmpl = dist / e.liters;
-          consumptionHtml = `<div class="fuel-consumption">${kmpl.toFixed(1)}<span class="fuel-consumption-unit">km/L</span></div>`;
-        }
+      const isFull = e.full !== false;
+      const res = consumption.get(e.id) || {};
+      let consumptionHtml;
+      if(res.kmpl){
+        consumptionHtml = `<div class="fuel-consumption">${res.kmpl.toFixed(1)}<span class="fuel-consumption-unit">km/L</span></div>`;
+      }else if(res.warn){
+        consumptionHtml = `<div class="fuel-consumption warn">check odo</div>`;
+      }else if(res.partial){
+        consumptionHtml = `<div class="fuel-consumption" style="color:var(--ink-faint); font-weight:400; font-size:11px;">topped up</div>`;
+      }else{
+        consumptionHtml = `<div class="fuel-consumption" style="color:var(--ink-faint); font-weight:400; font-size:11px;">first full</div>`;
       }
       rows.push(`
         <div class="fuel-entry">
           <div class="fuel-entry-date">${formatDate(e.date)}</div>
           <div class="fuel-entry-main">
-            <div class="fuel-entry-odo">${e.odo.toLocaleString()} km</div>
+            <div class="fuel-entry-odo">${e.odo.toLocaleString()} km${!isFull ? '<span class="fuel-entry-partial-tag">partial</span>' : ''}</div>
             <div class="fuel-entry-sub">${e.liters}L added</div>
           </div>
           ${consumptionHtml}
